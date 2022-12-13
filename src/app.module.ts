@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import config from './config/env.config'
+import { TickerModule } from './domain/ticker/ticker.module'
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import config from './config/env.config'
       isGlobal: true,
       load: [config],
     }),
+    TickerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
