@@ -1,4 +1,5 @@
 export class TickerResponseDto {
-  lastPrice: string
+  price: string
   symbol: string
+  source: string
 }

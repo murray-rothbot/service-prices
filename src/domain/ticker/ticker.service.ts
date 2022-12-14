@@ -7,7 +7,8 @@ export class TickerService {
   constructor(private readonly repository: BinanceRepository) {}
 
   async getTicker(params: TickerRequestDto): Promise<TickerResponseDto> {
-    const { lastPrice, symbol } = await this.repository.getTicker(params)
-    return { lastPrice, symbol }
+    const data = await this.repository.getTicker(params)
+    if (data) return data
+    throw new Error()
   }
 }
