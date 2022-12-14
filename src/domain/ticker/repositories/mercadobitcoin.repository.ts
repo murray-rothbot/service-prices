@@ -15,7 +15,7 @@ export class MercadoBitcoinRepository implements ITickerRepository {
 
   getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
     if (symbol.toLocaleUpperCase() != 'BTCBRL') {
-      throw new Error('Invalid Symbol')
+      return null
     }
 
     const url = `${this.baseUrl}/api/btc/ticker/`
