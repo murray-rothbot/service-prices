@@ -22,7 +22,7 @@ export class MercadoBitcoinRepository implements ITickerRepository {
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>): TickerResponseDto => {
+        map((response: AxiosResponse<IMercadoBitcoinTicker>): TickerResponseDto => {
           const { last } = response.data.ticker
           return { price: last, symbol, source: this.source }
         }),

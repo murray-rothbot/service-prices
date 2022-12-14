@@ -25,7 +25,7 @@ export class KuCoinRepository implements ITickerRepository {
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
-        map((response: AxiosResponse<any>): TickerResponseDto => {
+        map((response: AxiosResponse<IKuCoinTicker>): TickerResponseDto => {
           const { price } = response.data.data
           return { price, symbol: ticker, source: this.source }
         }),
