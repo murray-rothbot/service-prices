@@ -30,5 +30,6 @@ import { OKXRepository } from './repositories'
     MercadoBitcoinRepository,
     OKXRepository,
   ],
+  exports: [TickerService],
 })
 export class TickerModule {}
