@@ -3,34 +3,26 @@ import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { TickerRequestDto, TickerResponseDto } from '../dto'
-import { IBinanceTicker } from '../interfaces'
+import { IGateIOTicker } from '../interfaces'
 import { ITickerRepository } from '../interfaces/ticker-repository.interface'
 
 @Injectable()
-export class BinanceRepository implements ITickerRepository {
-  source = 'Binance'
-  baseUrl: string = 'https://api3.binance.com/api/v3'
-
-  tickers = {
-    BTCUSD: 'BTCUSDT',
-  }
+export class GateIORepository implements ITickerRepository {
+  source = 'GateIO'
+  baseUrl = 'https://api.gateio.ws/api/v4'
 
   constructor(private readonly httpService: HttpService) {}
 
   getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    const ticker = this.tickers[symbol.toUpperCase()] || symbol.toUpperCase()
-    const url = `${this.baseUrl}/ticker?symbol=${ticker}`
+    symbol = `${symbol.substring(0, 3)}_${symbol.substring(3, 6)}`
+    const url = `${this.baseUrl}/spot/tickers?currency_pair=${symbol}`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IBinanceTicker>): TickerResponseDto => {
-          const { lastPrice, symbol } = response.data
+        map((response: AxiosResponse<IGateIOTicker>): TickerResponseDto => {
+          const { currency_pair, last } = response.data[0]
 
-          return {
-            price: lastPrice,
-            symbol: symbol,
-            source: this.source,
-          }
+          return { price: last, symbol: currency_pair, source: this.source }
         }),
         catchError(async () => {
           // TODO: Log errordto

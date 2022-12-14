@@ -1,4 +1,4 @@
-export interface IBinanceTicker {
+export type IBinanceTicker = {
   symbol: string
   price: string
   priceChange: string

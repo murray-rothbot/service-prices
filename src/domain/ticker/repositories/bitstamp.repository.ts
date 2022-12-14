@@ -3,34 +3,24 @@ import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { TickerRequestDto, TickerResponseDto } from '../dto'
-import { IBinanceTicker } from '../interfaces'
+import { IBitstampTicker } from '../interfaces'
 import { ITickerRepository } from '../interfaces/ticker-repository.interface'
 
 @Injectable()
-export class BinanceRepository implements ITickerRepository {
-  source = 'Binance'
-  baseUrl: string = 'https://api3.binance.com/api/v3'
-
-  tickers = {
-    BTCUSD: 'BTCUSDT',
-  }
+export class BitstampRepository implements ITickerRepository {
+  source: string = 'Bitstamp'
+  baseUrl = 'https://www.bitstamp.net/api/v2'
 
   constructor(private readonly httpService: HttpService) {}
 
   getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    const ticker = this.tickers[symbol.toUpperCase()] || symbol.toUpperCase()
-    const url = `${this.baseUrl}/ticker?symbol=${ticker}`
+    const url = `${this.baseUrl}/ticker/${symbol.toLowerCase()}/`
 
     return lastValueFrom(
       this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IBinanceTicker>): TickerResponseDto => {
-          const { lastPrice, symbol } = response.data
-
-          return {
-            price: lastPrice,
-            symbol: symbol,
-            source: this.source,
-          }
+        map((response: AxiosResponse<IBitstampTicker>): TickerResponseDto => {
+          const price = response.data.last
+          return { price, symbol, source: this.source }
         }),
         catchError(async () => {
           // TODO: Log errordto
