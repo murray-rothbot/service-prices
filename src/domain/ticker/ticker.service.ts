@@ -60,13 +60,13 @@ export class TickerService {
   }
 
   async getTickers(params: TickerRequestDto): Promise<TickersResponseDto> {
-    const promisses = this.repositories.map(
+    const promises = this.repositories.map(
       async (repository: ITickerRepository): Promise<TickerResponseDto> => {
         return await repository.getTicker(params)
       },
     )
 
-    const tickers = (await Promise.all(promisses)).filter((ticker) => ticker != null)
+    const tickers = (await Promise.all(promises)).filter((ticker) => ticker != null)
 
     return { tickers }
   }
