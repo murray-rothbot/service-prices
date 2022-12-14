@@ -15,21 +15,22 @@ describe('TickerController (e2e)', () => {
     await app.init()
   })
 
-  for (let test_symbol of ['BTCBRL', 'BTCUSDT']) {
+  for (let test_symbol of ['BTCUSD', 'btcusd', 'BTCBRL', 'btcbrl']) {
     it(`ticker?symbol=${test_symbol} (GET)`, () => {
       return request(app.getHttpServer())
         .get(`/ticker?symbol=${test_symbol}`)
         .expect(200)
         .expect((res) => {
-          let data = res.body
-
-          if (data.symbol != test_symbol)
-            throw Error(`got ${data.symbol} instead of ${test_symbol}`)
+          const { price, symbol, source } = res.body
+          if (!price || !symbol || !source) {
+            console.error(`Body content: ${JSON.stringify(res.body)}`)
+            throw Error()
+          }
         })
     })
   }
 
-  it('ticker?symbol=INVALID (GET)', () => {
+  it('ticker?symbol=XXXYYY (GET)', () => {
     return request(app.getHttpServer()).get('/ticker?symbol=INVALID').expect(500)
-  })
+  }, 30000)
 })
