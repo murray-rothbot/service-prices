@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { TickerRequestDto, TickerResponseDto } from './dto'
+import { TickersResponseDto } from './dto/tickers-response.dto'
+import { ITickerRepository } from './interfaces/ticker-repository.interface'
 
 import { BinanceRepository } from './repositories'
 import { BitfinexRepository } from './repositories'
@@ -14,7 +16,7 @@ import { OKXRepository } from './repositories'
 
 @Injectable()
 export class TickerService {
-  repositories: Array<any>
+  repositories: Array<ITickerRepository>
 
   constructor(
     private readonly binanceRepository: BinanceRepository,
@@ -55,5 +57,17 @@ export class TickerService {
     }
 
     throw new Error()
+  }
+
+  async getTickers(params: TickerRequestDto): Promise<TickersResponseDto> {
+    const promisses = this.repositories.map(
+      async (repository: ITickerRepository): Promise<TickerResponseDto> => {
+        return await repository.getTicker(params)
+      },
+    )
+
+    const tickers = (await Promise.all(promisses)).filter((ticker) => ticker != null)
+
+    return { tickers }
   }
 }
