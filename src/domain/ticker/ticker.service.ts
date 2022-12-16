@@ -32,19 +32,18 @@ export class TickerService {
   ) {
     this.repositories = [
       this.binanceRepository,
-      this.bitgetRepository,
-      this.coinbaseRepository,
-      this.kucoinRepository,
 
-      // No BRL data
-      this.bitfinexRepository,
-      this.bitstampRepository,
-      this.gateioRepository,
-      this.krakenRepository,
-      this.okxRepository,
+      this.bitfinexRepository, // No BRL data
+      this.bitstampRepository, // No BRL data
+      this.gateioRepository, // No BRL data
+      this.okxRepository, // No BRL data
 
-      // No BRL data
-      this.mercadoBitcoinRepository,
+      this.coinbaseRepository, // No 24 change data
+      this.kucoinRepository, // No 24 change data
+      this.bitgetRepository, // No 24 change data
+
+      this.krakenRepository, // No BRL data, no 24 change data
+      this.mercadoBitcoinRepository, // No USD data, no 24 change data
     ]
   }
 
