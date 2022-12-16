@@ -20,9 +20,14 @@ export class GateIORepository implements ITickerRepository {
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<IGateIOTicker>): TickerResponseDto => {
-          const { currency_pair, last } = response.data[0]
+          const { currency_pair, last, change_percentage } = response.data[0]
 
-          return { price: last, symbol: currency_pair, source: this.source }
+          return {
+            price: last,
+            symbol: currency_pair,
+            source: this.source,
+            change24h: change_percentage,
+          }
         }),
         catchError(async () => {
           // TODO: Log errordto

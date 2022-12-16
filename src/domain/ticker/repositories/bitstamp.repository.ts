@@ -19,8 +19,8 @@ export class BitstampRepository implements ITickerRepository {
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<IBitstampTicker>): TickerResponseDto => {
-          const price = response.data.last
-          return { price, symbol, source: this.source }
+          const { last, percent_change_24 } = response.data
+          return { price: last, symbol, source: this.source, change24h: percent_change_24 }
         }),
         catchError(async () => {
           // TODO: Log errordto

@@ -24,12 +24,13 @@ export class BinanceRepository implements ITickerRepository {
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<IBinanceTicker>): TickerResponseDto => {
-          const { lastPrice, symbol } = response.data
+          const { lastPrice, symbol, priceChangePercent } = response.data
 
           return {
             price: lastPrice,
             symbol: symbol,
             source: this.source,
+            change24h: priceChangePercent,
           }
         }),
         catchError(async () => {
