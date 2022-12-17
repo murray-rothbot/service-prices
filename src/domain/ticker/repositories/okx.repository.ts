@@ -21,8 +21,9 @@ export class OKXRepository implements ITickerRepository {
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<IOKXTicker>): TickerResponseDto => {
-          const { last, instId } = response.data.data[0]
-          return { price: last, symbol: instId, source: this.source }
+          const { last, instId, open24h } = response.data.data[0]
+          const change24h = ((+last / +open24h - 1) * 100).toFixed(2)
+          return { price: last, symbol: instId, source: this.source, change24h }
         }),
         catchError(async () => {
           // TODO: Log errordto

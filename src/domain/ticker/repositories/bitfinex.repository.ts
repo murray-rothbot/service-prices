@@ -24,8 +24,9 @@ export class BitfinexRepository implements ITickerRepository {
     return lastValueFrom(
       this.httpService.get(url).pipe(
         map((response: AxiosResponse<IBitfinexTicker>): TickerResponseDto => {
-          const price = `${response.data[9]}`
-          return { price, symbol, source: this.source }
+          const price = `${response.data[9].toFixed(2)}`
+          const change24h = `${(response.data[5] * 100).toFixed(2)}`
+          return { price, symbol, source: this.source, change24h }
         }),
         catchError(async () => {
           // TODO: Log errordto
