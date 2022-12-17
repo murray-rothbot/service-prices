@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common'
-import { TickerRequestDto, TickerResponseDto } from './dto'
-import { TickersResponseDto } from './dto/tickers-response.dto'
-import { ITickerRepository } from './interfaces/ticker-repository.interface'
-
-import { BinanceRepository } from './repositories'
-import { BitfinexRepository } from './repositories'
-import { BitgetRepository } from './repositories'
-import { BitstampRepository } from './repositories'
-import { CoinbaseRepository } from './repositories'
-import { GateIORepository } from './repositories'
-import { KrakenRepository } from './repositories'
-import { KuCoinRepository } from './repositories'
-import { MercadoBitcoinRepository } from './repositories'
-import { OKXRepository } from './repositories'
+import { TickerRequestDto, TickerResponseDto, TickersResponseDto } from './dto'
+import { ITickerRepository } from './interfaces'
+import {
+  BinanceRepository,
+  BitfinexRepository,
+  BitgetRepository,
+  BitstampRepository,
+  CoinbaseRepository,
+  GateIORepository,
+  KrakenRepository,
+  KuCoinRepository,
+  MercadoBitcoinRepository,
+  OKXRepository,
+} from './repositories'
 
 @Injectable()
 export class TickerService {
