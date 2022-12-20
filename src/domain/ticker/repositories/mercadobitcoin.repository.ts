@@ -27,8 +27,6 @@ export class MercadoBitcoinRepository implements ITickerRepository {
           return { price: last, symbol, source: this.source }
         }),
         catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
           return null
         }),
       ),

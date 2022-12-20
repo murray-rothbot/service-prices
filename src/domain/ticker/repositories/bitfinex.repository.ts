@@ -29,8 +29,6 @@ export class BitfinexRepository implements ITickerRepository {
           return { price, symbol, source: this.source, change24h }
         }),
         catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
           return null
         }),
       ),

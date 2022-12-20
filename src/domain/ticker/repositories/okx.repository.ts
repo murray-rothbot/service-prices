@@ -26,8 +26,6 @@ export class OKXRepository implements ITickerRepository {
           return { price: last, symbol: instId, source: this.source, change24h }
         }),
         catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
           return null
         }),
       ),

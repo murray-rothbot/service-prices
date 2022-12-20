@@ -30,8 +30,6 @@ export class KuCoinRepository implements ITickerRepository {
           return { price, symbol: ticker, source: this.source }
         }),
         catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
           return null
         }),
       ),

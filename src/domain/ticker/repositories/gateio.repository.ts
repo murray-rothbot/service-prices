@@ -30,8 +30,6 @@ export class GateIORepository implements ITickerRepository {
           }
         }),
         catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
           return null
         }),
       ),

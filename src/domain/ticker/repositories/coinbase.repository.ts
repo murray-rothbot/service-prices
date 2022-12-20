@@ -24,8 +24,6 @@ export class CoinbaseRepository implements ITickerRepository {
           return { price: amount, symbol: `${base}${currency}`, source: this.source }
         }),
         catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
           return null
         }),
       ),
