@@ -1,31 +1,26 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IBitstampTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class BitstampRepository implements ITickerRepository {
+export class BitstampRepository extends CacheRepository {
   source: string = 'Bitstamp'
   baseUrl = 'https://www.bitstamp.net/api/v2'
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerURL(ticker): string {
+    if (ticker.toUpper().includes('BRL')) {
+      throw new Error(`${ticker} not available at ${this.source}`)
+    }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    const url = `${this.baseUrl}/ticker/${symbol.toLowerCase()}/`
+    return `${this.baseUrl}/ticker/${ticker.toLowerCase()}/`
+  }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IBitstampTicker>): TickerResponseDto => {
-          const { last, percent_change_24 } = response.data
-          return { price: last, symbol, source: this.source, change24h: percent_change_24 }
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+  repositoryToPrice(data: IBitstampTicker) {
+    const { last, percent_change_24 } = data
+
+    return {
+      price: last,
+      change24h: percent_change_24,
+    }
   }
 }

@@ -1,32 +1,22 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { ICoinbaseTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class CoinbaseRepository implements ITickerRepository {
+export class CoinbaseRepository extends CacheRepository {
   source = 'Coinbase'
   baseUrl = 'https://api.coinbase.com/v2'
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerCode(symbol): string {
+    return symbol.substring(3, 6)
+  }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    const currency = symbol.substring(3, 6)
-    const url = `${this.baseUrl}/prices/spot?currency=${currency}`
+  getTickerURL(ticker): string {
+    return `${this.baseUrl}/prices/spot?currency=${ticker}`
+  }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<ICoinbaseTicker>): TickerResponseDto => {
-          const { base, currency, amount } = response.data.data
-          return { price: amount, symbol: `${base}${currency}`, source: this.source }
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+  repositoryToPrice(data: ICoinbaseTicker) {
+    const { amount } = data.data
+    return { price: amount }
   }
 }

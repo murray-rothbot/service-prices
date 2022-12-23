@@ -1,6 +1,5 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { Cache } from 'cache-manager'
-import { Cron, CronExpression } from '@nestjs/schedule'
+import { Injectable } from '@nestjs/common'
+import { Cron } from '@nestjs/schedule'
 import { TickerRequestDto, TickerResponseDto, TickersResponseDto } from './dto'
 import { ITickerRepository } from './interfaces'
 
@@ -22,7 +21,6 @@ export class TickerService {
   repositories: Array<ITickerRepository>
 
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly binanceRepository?: BinanceRepository,
     private readonly bitfinexRepository?: BitfinexRepository,
     private readonly bitgetRepository?: BitgetRepository,
@@ -54,11 +52,7 @@ export class TickerService {
   async getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
     for (let repository of this.repositories) {
       try {
-        const key = `${repository.source}_${symbol}`
-        let data: TickerResponseDto = await this.cacheManager.get(key)
-        if (!data) data = await repository.getTicker({ symbol })
-
-        if (data) return data
+        return await repository.getTicker({ symbol })
       } catch {}
     }
 
@@ -68,9 +62,7 @@ export class TickerService {
   async getTickers({ symbol }: TickerRequestDto): Promise<TickersResponseDto> {
     const promises = this.repositories.map(
       async (repository: ITickerRepository): Promise<TickerResponseDto> => {
-        let data: TickerResponseDto = await this.cacheManager.get(`${repository.source}_${symbol}`)
-        if (!data) data = await repository.getTicker({ symbol })
-        return data
+        return await repository.getTicker({ symbol })
       },
     )
 
@@ -79,7 +71,7 @@ export class TickerService {
     return { tickers }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron('*/5 * * * * *')
   async updateCache() {
     const symbols = ['btcusd', 'btcbrl']
 
@@ -89,12 +81,6 @@ export class TickerService {
           return await repository.getTicker({ symbol })
         },
       )
-
-      const tickers = (await Promise.all(promises)).filter((ticker) => ticker != null)
-      for (const ticker of tickers) {
-        const key = `${ticker.source}_${symbol}`
-        await this.cacheManager.set(key, ticker, 0)
-      }
     }
   }
 }

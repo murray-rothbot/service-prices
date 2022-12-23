@@ -1,34 +1,28 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IOKXTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class OKXRepository implements ITickerRepository {
+export class OKXRepository extends CacheRepository {
   source = 'OKX'
   baseUrl = 'https://www.okx.com/api/v5'
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerCode(symbol): string {
+    return `${symbol.substring(0, 3)}-${symbol.substring(3, 6)}`
+  }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    let ticker = `${symbol.substring(0, 3)}-${symbol.substring(3, 6)}`
+  getTickerURL(ticker): string {
+    if (ticker.toUpper().includes('BRL')) {
+      throw new Error(`${ticker} not available at ${this.source}`)
+    }
 
-    const url = `${this.baseUrl}/market/tickers?instType=SWAP&uly=${ticker}`
+    return `${this.baseUrl}/market/tickers?instType=SWAP&uly=${ticker}`
+  }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IOKXTicker>): TickerResponseDto => {
-          const { last, instId, open24h } = response.data.data[0]
-          const change24h = ((+last / +open24h - 1) * 100).toFixed(2)
-          return { price: last, symbol: instId, source: this.source, change24h }
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+  repositoryToPrice(data: IOKXTicker) {
+    const { last, open24h } = data.data[0]
+    const change24h = ((+last / +open24h - 1) * 100).toFixed(2)
+
+    return { price: last, change24h }
   }
 }

@@ -1,42 +1,30 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IBinanceTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class BinanceRepository implements ITickerRepository {
+export class BinanceRepository extends CacheRepository {
   source = 'Binance'
   baseUrl: string = 'https://api3.binance.com/api/v3'
 
-  tickers = {
-    BTCUSD: 'BTCUSDT',
+  getTickerCode(symbol): string {
+    const tickers = {
+      BTCUSD: 'BTCUSDT',
+    }
+
+    return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerURL(ticker): string {
+    return `${this.baseUrl}/ticker?symbol=${ticker}`
+  }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    const ticker = this.tickers[symbol.toUpperCase()] || symbol.toUpperCase()
-    const url = `${this.baseUrl}/ticker?symbol=${ticker}`
+  repositoryToPrice(data: IBinanceTicker) {
+    const { lastPrice, priceChangePercent } = data
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IBinanceTicker>): TickerResponseDto => {
-          const { lastPrice, symbol, priceChangePercent } = response.data
-
-          return {
-            price: lastPrice,
-            symbol: symbol,
-            source: this.source,
-            change24h: priceChangePercent,
-          }
-        }),
-        catchError(async () => {
-          return null
-        }),
-      ),
-    )
+    return {
+      price: lastPrice,
+      change24h: priceChangePercent,
+    }
   }
 }

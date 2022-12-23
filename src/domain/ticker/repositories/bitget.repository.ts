@@ -1,37 +1,27 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IBitgetTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class BitgetRepository implements ITickerRepository {
+export class BitgetRepository extends CacheRepository {
   source = 'Bitget'
   baseUrl = 'https://api.bitget.com/api/spot/v1'
 
-  tickers = {
-    BTCUSD: 'BTCUSDT',
+  getTickerCode(symbol): string {
+    const tickers = {
+      BTCUSD: 'BTCUSDT',
+    }
+
+    return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerURL(ticker): string {
+    return `${this.baseUrl}/market/ticker?symbol=${ticker}_SPBL`
+  }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    const ticker = this.tickers[symbol.toUpperCase()] || symbol.toUpperCase()
-    const url = `${this.baseUrl}/market/ticker?symbol=${ticker}_SPBL`
+  repositoryToPrice(data: IBitgetTicker) {
+    const { close } = data.data
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IBitgetTicker>): TickerResponseDto => {
-          const { close, symbol } = response.data.data
-          return { price: close, symbol, source: this.source }
-        }),
-        catchError(async () => {
-          // TODO: Log errordto
-          return null
-        }),
-      ),
-    )
+    return { price: close }
   }
 }
