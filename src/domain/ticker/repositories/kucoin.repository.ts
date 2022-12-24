@@ -1,40 +1,27 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IKuCoinTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class KuCoinRepository implements ITickerRepository {
+export class KuCoinRepository extends CacheRepository {
   source = 'KuCoin'
   baseUrl = 'https://api.kucoin.com/api/v1'
 
-  tickers = {
-    BTCUSD: 'BTCUSDT',
+  getTickerCode(symbol: string): string {
+    const tickers = {
+      BTCUSD: 'BTCUSDT',
+    }
+    const ticker = tickers[symbol.toUpperCase()] || symbol.toUpperCase()
+    return `${ticker.substring(0, 3)}-${ticker.substring(3, ticker.length)}`
   }
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerURL(ticker: string): string {
+    return `${this.baseUrl}/market/orderbook/level1?symbol=${ticker}`
+  }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    let ticker: string = this.tickers[symbol.toUpperCase()] || symbol.toUpperCase()
-    ticker = `${ticker.substring(0, 3)}-${ticker.substring(3, ticker.length)}`
+  repositoryToPrice(data: IKuCoinTicker) {
+    const { price } = data.data
 
-    const url = `${this.baseUrl}/market/orderbook/level1?symbol=${ticker}`
-
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IKuCoinTicker>): TickerResponseDto => {
-          const { price } = response.data.data
-          return { price, symbol: ticker, source: this.source }
-        }),
-        catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
-          return null
-        }),
-      ),
-    )
+    return { price }
   }
 }

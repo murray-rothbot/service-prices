@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
+import { Cron } from '@nestjs/schedule'
 import { TickerRequestDto, TickerResponseDto, TickersResponseDto } from './dto'
 import { ITickerRepository } from './interfaces'
+
 import {
   BinanceRepository,
   BitfinexRepository,
@@ -19,16 +21,16 @@ export class TickerService {
   repositories: Array<ITickerRepository>
 
   constructor(
-    private readonly binanceRepository: BinanceRepository,
-    private readonly bitfinexRepository: BitfinexRepository,
-    private readonly bitgetRepository: BitgetRepository,
-    private readonly bitstampRepository: BitstampRepository,
-    private readonly coinbaseRepository: CoinbaseRepository,
-    private readonly gateioRepository: GateIORepository,
-    private readonly krakenRepository: KrakenRepository,
-    private readonly kucoinRepository: KuCoinRepository,
-    private readonly mercadoBitcoinRepository: MercadoBitcoinRepository,
-    private readonly okxRepository: OKXRepository,
+    private readonly binanceRepository?: BinanceRepository,
+    private readonly bitfinexRepository?: BitfinexRepository,
+    private readonly bitgetRepository?: BitgetRepository,
+    private readonly bitstampRepository?: BitstampRepository,
+    private readonly coinbaseRepository?: CoinbaseRepository,
+    private readonly gateioRepository?: GateIORepository,
+    private readonly krakenRepository?: KrakenRepository,
+    private readonly kucoinRepository?: KuCoinRepository,
+    private readonly mercadoBitcoinRepository?: MercadoBitcoinRepository,
+    private readonly okxRepository?: OKXRepository,
   ) {
     this.repositories = [
       this.binanceRepository,
@@ -44,29 +46,41 @@ export class TickerService {
 
       this.krakenRepository, // No BRL data, no 24 change data
       this.mercadoBitcoinRepository, // No USD data, no 24 change data
-    ]
+    ].filter((repo) => repo != null)
   }
 
-  async getTicker(params: TickerRequestDto): Promise<TickerResponseDto> {
+  async getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
     for (let repository of this.repositories) {
       try {
-        const data = await repository.getTicker(params)
-        if (data) return data
+        return await repository.getTicker({ symbol })
       } catch {}
     }
 
     throw new Error()
   }
 
-  async getTickers(params: TickerRequestDto): Promise<TickersResponseDto> {
+  async getTickers({ symbol }: TickerRequestDto): Promise<TickersResponseDto> {
     const promises = this.repositories.map(
       async (repository: ITickerRepository): Promise<TickerResponseDto> => {
-        return await repository.getTicker(params)
+        return await repository.getTicker({ symbol })
       },
     )
 
     const tickers = (await Promise.all(promises)).filter((ticker) => ticker != null)
 
     return { tickers }
+  }
+
+  @Cron('*/5 * * * * *')
+  async updateCache() {
+    const symbols = ['btcusd', 'btcbrl']
+
+    for (const symbol of symbols) {
+      const promises = this.repositories.map(
+        async (repository: ITickerRepository): Promise<TickerResponseDto> => {
+          return await repository.getTicker({ symbol })
+        },
+      )
+    }
   }
 }

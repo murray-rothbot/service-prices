@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { CacheModule, Module } from '@nestjs/common'
 import { TickerService } from './ticker.service'
 import { TickerController } from './ticker.controller'
 import { HttpModule } from '@nestjs/axios'
@@ -16,7 +16,7 @@ import { OKXRepository } from './repositories'
 
 @Module({
   controllers: [TickerController],
-  imports: [HttpModule],
+  imports: [HttpModule, CacheModule.register()],
   providers: [
     TickerService,
     BinanceRepository,

@@ -1,21 +1,10 @@
 import { HttpModule } from '@nestjs/axios'
 import { Test, TestingModule } from '@nestjs/testing'
-import { TickerRequestDto, TickerResponseDto } from './../dto'
+import { TickerRequestDto, TickerResponseDto, TickersResponseDto } from './../dto'
 import { TickerController } from './../ticker.controller'
 import { TickerService } from './../ticker.service'
 
-import { BinanceRepository } from './../repositories'
-import { BitfinexRepository } from './../repositories'
-import { BitgetRepository } from './../repositories'
-import { BitstampRepository } from './../repositories'
-import { CoinbaseRepository } from './../repositories'
-import { GateIORepository } from './../repositories'
-import { KrakenRepository } from './../repositories'
-import { KuCoinRepository } from './../repositories'
-import { MercadoBitcoinRepository } from './../repositories'
-import { OKXRepository } from './../repositories'
-
-const RepositoryMock = {
+const ServiceMock = {
   getTicker({ symbol }): TickerResponseDto {
     if (symbol === 'INVALID') {
       throw new Error()
@@ -27,6 +16,27 @@ const RepositoryMock = {
       source: 'Mock',
     }
   },
+
+  getTickers({ symbol }): TickersResponseDto {
+    if (symbol === 'INVALID') {
+      throw new Error()
+    }
+
+    return {
+      tickers: [
+        {
+          price: '123456.78',
+          symbol,
+          source: 'Mock 1',
+        },
+        {
+          price: '123456.99',
+          symbol,
+          source: 'Mock 2',
+        },
+      ],
+    }
+  },
 }
 
 describe('TickerController', () => {
@@ -36,46 +46,9 @@ describe('TickerController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TickerController],
       providers: [
-        TickerService,
         {
-          provide: BinanceRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: BitfinexRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: BitgetRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: BitstampRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: CoinbaseRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: GateIORepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: KrakenRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: KuCoinRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: MercadoBitcoinRepository,
-          useValue: RepositoryMock,
-        },
-        {
-          provide: OKXRepository,
-          useValue: RepositoryMock,
+          provide: TickerService,
+          useValue: ServiceMock,
         },
       ],
       imports: [HttpModule],

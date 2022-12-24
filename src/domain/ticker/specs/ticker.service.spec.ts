@@ -12,12 +12,14 @@ import { KrakenRepository } from './../repositories'
 import { KuCoinRepository } from './../repositories'
 import { MercadoBitcoinRepository } from './../repositories'
 import { OKXRepository } from './../repositories'
+import { CacheModule } from '@nestjs/common'
 
 describe('TickerService', () => {
   let service: TickerService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule, CacheModule.register()],
       providers: [
         TickerService,
         BinanceRepository,
@@ -31,7 +33,6 @@ describe('TickerService', () => {
         MercadoBitcoinRepository,
         OKXRepository,
       ],
-      imports: [HttpModule],
     }).compile()
 
     service = module.get<TickerService>(TickerService)

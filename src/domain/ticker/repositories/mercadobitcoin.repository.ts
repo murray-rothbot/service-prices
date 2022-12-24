@@ -1,37 +1,22 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IMercadoBitcoinTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class MercadoBitcoinRepository implements ITickerRepository {
+export class MercadoBitcoinRepository extends CacheRepository {
   source = 'Mercado Bitcoin'
   baseUrl = 'https://www.mercadobitcoin.net'
 
-  constructor(private readonly httpService: HttpService) {}
-
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    if (symbol.toLocaleUpperCase() != 'BTCBRL') {
-      return null
+  getTickerURL(ticker: string): string {
+    if (!ticker.toUpperCase().includes('BRL')) {
+      throw new Error(`${ticker} not available at ${this.source}`)
     }
 
-    const url = `${this.baseUrl}/api/btc/ticker/`
+    return `${this.baseUrl}/api/btc/ticker/`
+  }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IMercadoBitcoinTicker>): TickerResponseDto => {
-          const { last } = response.data.ticker
-          return { price: last, symbol, source: this.source }
-        }),
-        catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
-          return null
-        }),
-      ),
-    )
+  repositoryToPrice(data: IMercadoBitcoinTicker) {
+    const { last } = data.ticker
+    return { price: last }
   }
 }

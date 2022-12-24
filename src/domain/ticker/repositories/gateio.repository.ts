@@ -1,40 +1,30 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IGateIOTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class GateIORepository implements ITickerRepository {
+export class GateIORepository extends CacheRepository {
   source = 'GateIO'
   baseUrl = 'https://api.gateio.ws/api/v4'
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerCode(symbol: string): string {
+    return `${symbol.substring(0, 3)}_${symbol.substring(3, 6)}`
+  }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    symbol = `${symbol.substring(0, 3)}_${symbol.substring(3, 6)}`
-    const url = `${this.baseUrl}/spot/tickers?currency_pair=${symbol}`
+  getTickerURL(ticker: string): string {
+    if (ticker.toUpperCase().includes('BRL')) {
+      throw new Error(`${ticker} not available at ${this.source}`)
+    }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IGateIOTicker>): TickerResponseDto => {
-          const { currency_pair, last, change_percentage } = response.data[0]
+    return `${this.baseUrl}/spot/tickers?currency_pair=${ticker}`
+  }
 
-          return {
-            price: last,
-            symbol: currency_pair,
-            source: this.source,
-            change24h: change_percentage,
-          }
-        }),
-        catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
-          return null
-        }),
-      ),
-    )
+  repositoryToPrice(data: IGateIOTicker) {
+    const { last, change_percentage } = data[0]
+
+    return {
+      price: last,
+      change24h: change_percentage,
+    }
   }
 }

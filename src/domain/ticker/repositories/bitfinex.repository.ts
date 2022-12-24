@@ -1,39 +1,35 @@
-import { HttpService } from '@nestjs/axios'
-import { AxiosResponse } from 'axios'
 import { Injectable } from '@nestjs/common'
-import { catchError, lastValueFrom, map } from 'rxjs'
-import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { IBitfinexTicker } from '../interfaces'
-import { ITickerRepository } from '../interfaces/ticker-repository.interface'
+import { CacheRepository } from './cache.repository'
 
 @Injectable()
-export class BitfinexRepository implements ITickerRepository {
+export class BitfinexRepository extends CacheRepository {
   source = 'Bitfinex'
   baseUrl = 'https://api-pub.bitfinex.com/v2'
 
-  tickers = {
-    BTCUSD: 'tBTCUSD',
+  getTickerCode(symbol: string): string {
+    const tickers = {
+      BTCUSD: 'tBTCUSD',
+    }
+
+    return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
-  constructor(private readonly httpService: HttpService) {}
+  getTickerURL(ticker: string | string[]): string {
+    if (ticker.includes('BRL')) {
+      throw new Error(`${ticker} not available at ${this.source}`)
+    }
 
-  getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
-    const ticker = this.tickers[symbol.toUpperCase()] || symbol
-    const url = `${this.baseUrl}/ticker/${ticker}`
+    return `${this.baseUrl}/ticker/${ticker}`
+  }
 
-    return lastValueFrom(
-      this.httpService.get(url).pipe(
-        map((response: AxiosResponse<IBitfinexTicker>): TickerResponseDto => {
-          const price = `${response.data[9].toFixed(2)}`
-          const change24h = `${(response.data[5] * 100).toFixed(2)}`
-          return { price, symbol, source: this.source, change24h }
-        }),
-        catchError(async () => {
-          // TODO: Log errordto
-          console.error(url)
-          return null
-        }),
-      ),
-    )
+  repositoryToPrice(data: IBitfinexTicker) {
+    const price = `${data[9].toFixed(2)}`
+    const change24h = `${(data[5] * 100).toFixed(2)}`
+
+    return {
+      price,
+      change24h,
+    }
   }
 }
