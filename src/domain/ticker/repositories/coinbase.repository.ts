@@ -7,11 +7,11 @@ export class CoinbaseRepository extends CacheRepository {
   source = 'Coinbase'
   baseUrl = 'https://api.coinbase.com/v2'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     return symbol.substring(3, 6)
   }
 
-  getTickerURL(ticker): string {
+  getTickerURL(ticker: string): string {
     return `${this.baseUrl}/prices/spot?currency=${ticker}`
   }
 

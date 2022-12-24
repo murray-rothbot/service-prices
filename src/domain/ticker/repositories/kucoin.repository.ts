@@ -7,7 +7,7 @@ export class KuCoinRepository extends CacheRepository {
   source = 'KuCoin'
   baseUrl = 'https://api.kucoin.com/api/v1'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     const tickers = {
       BTCUSD: 'BTCUSDT',
     }
@@ -15,7 +15,7 @@ export class KuCoinRepository extends CacheRepository {
     return `${ticker.substring(0, 3)}-${ticker.substring(3, ticker.length)}`
   }
 
-  getTickerURL(ticker): string {
+  getTickerURL(ticker: string): string {
     return `${this.baseUrl}/market/orderbook/level1?symbol=${ticker}`
   }
 

@@ -7,8 +7,8 @@ export class BitstampRepository extends CacheRepository {
   source: string = 'Bitstamp'
   baseUrl = 'https://www.bitstamp.net/api/v2'
 
-  getTickerURL(ticker): string {
-    if (ticker.toUpper().includes('BRL')) {
+  getTickerURL(ticker: string): string {
+    if (ticker.toUpperCase().includes('BRL')) {
       throw new Error(`${ticker} not available at ${this.source}`)
     }
 

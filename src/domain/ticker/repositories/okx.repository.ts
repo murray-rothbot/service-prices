@@ -7,12 +7,12 @@ export class OKXRepository extends CacheRepository {
   source = 'OKX'
   baseUrl = 'https://www.okx.com/api/v5'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     return `${symbol.substring(0, 3)}-${symbol.substring(3, 6)}`
   }
 
-  getTickerURL(ticker): string {
-    if (ticker.toUpper().includes('BRL')) {
+  getTickerURL(ticker: string): string {
+    if (ticker.toUpperCase().includes('BRL')) {
       throw new Error(`${ticker} not available at ${this.source}`)
     }
 

@@ -7,7 +7,7 @@ export class BitgetRepository extends CacheRepository {
   source = 'Bitget'
   baseUrl = 'https://api.bitget.com/api/spot/v1'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     const tickers = {
       BTCUSD: 'BTCUSDT',
     }
@@ -15,7 +15,7 @@ export class BitgetRepository extends CacheRepository {
     return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
-  getTickerURL(ticker): string {
+  getTickerURL(ticker: string): string {
     return `${this.baseUrl}/market/ticker?symbol=${ticker}_SPBL`
   }
 

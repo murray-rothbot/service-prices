@@ -7,7 +7,7 @@ export class BinanceRepository extends CacheRepository {
   source = 'Binance'
   baseUrl: string = 'https://api3.binance.com/api/v3'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     const tickers = {
       BTCUSD: 'BTCUSDT',
     }
@@ -15,7 +15,7 @@ export class BinanceRepository extends CacheRepository {
     return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
-  getTickerURL(ticker): string {
+  getTickerURL(ticker: string): string {
     return `${this.baseUrl}/ticker?symbol=${ticker}`
   }
 

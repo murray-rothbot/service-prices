@@ -7,12 +7,12 @@ export class GateIORepository extends CacheRepository {
   source = 'GateIO'
   baseUrl = 'https://api.gateio.ws/api/v4'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     return `${symbol.substring(0, 3)}_${symbol.substring(3, 6)}`
   }
 
-  getTickerURL(ticker): string {
-    if (ticker.toUpper().includes('BRL')) {
+  getTickerURL(ticker: string): string {
+    if (ticker.toUpperCase().includes('BRL')) {
       throw new Error(`${ticker} not available at ${this.source}`)
     }
 

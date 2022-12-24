@@ -7,7 +7,7 @@ export class BitfinexRepository extends CacheRepository {
   source = 'Bitfinex'
   baseUrl = 'https://api-pub.bitfinex.com/v2'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     const tickers = {
       BTCUSD: 'tBTCUSD',
     }
@@ -15,7 +15,7 @@ export class BitfinexRepository extends CacheRepository {
     return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
-  getTickerURL(ticker): string {
+  getTickerURL(ticker: string | string[]): string {
     if (ticker.includes('BRL')) {
       throw new Error(`${ticker} not available at ${this.source}`)
     }

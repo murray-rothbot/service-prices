@@ -7,7 +7,7 @@ export class KrakenRepository extends CacheRepository {
   source = 'Kraken'
   baseUrl = 'https://api.kraken.com/0/public'
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     const tickers = {
       BTCUSD: 'TBTCUSD',
     }
@@ -15,8 +15,8 @@ export class KrakenRepository extends CacheRepository {
     return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
-  getTickerURL(ticker): string {
-    if (ticker.toUpper().includes('BRL')) {
+  getTickerURL(ticker: string): string {
+    if (ticker.toUpperCase().includes('BRL')) {
       throw new Error(`${ticker} not available at ${this.source}`)
     }
 

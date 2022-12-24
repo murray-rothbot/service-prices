@@ -7,8 +7,8 @@ export class MercadoBitcoinRepository extends CacheRepository {
   source = 'Mercado Bitcoin'
   baseUrl = 'https://www.mercadobitcoin.net'
 
-  getTickerURL(ticker): string {
-    if (!ticker.toUpper().includes('BRL')) {
+  getTickerURL(ticker: string): string {
+    if (!ticker.toUpperCase().includes('BRL')) {
       throw new Error(`${ticker} not available at ${this.source}`)
     }
 

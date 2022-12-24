@@ -16,13 +16,13 @@ export abstract class CacheRepository implements ITickerRepository {
     protected readonly httpService: HttpService,
   ) {}
 
-  getTickerCode(symbol): string {
+  getTickerCode(symbol: string): string {
     return symbol
   }
 
-  abstract getTickerURL(ticker): string
+  abstract getTickerURL(ticker: string): string
 
-  abstract repositoryToPrice(data): { price; change24h? }
+  abstract repositoryToPrice(data: any): { price: any; change24h?: any }
 
   async getTicker({ symbol }: TickerRequestDto): Promise<TickerResponseDto> {
     const cache_key = `${this.source}_${symbol}`
