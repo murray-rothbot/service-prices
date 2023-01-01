@@ -9,6 +9,6 @@ import { HttpModule } from '@nestjs/axios'
 @Module({
   imports: [SequelizeModule.forFeature([AlertPrice]), HttpModule, TickerModule],
   providers: [AlertPriceService],
-  controllers: [AlertPriceController, AlertPriceController],
+  controllers: [AlertPriceController],
 })
 export class AlertPriceModule {}
