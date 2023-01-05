@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { Op } from 'sequelize'
 import { TickerService } from '../ticker/ticker.service'
 import { AlertPrice } from './alert-price.model'
-import { CreateAlertPriceDto } from './dto/create-alert-price.dto'
+import { CreateAlertPriceDto, ListAlertPricesDto } from './dto'
 import { HttpService } from '@nestjs/axios'
 import { catchError, lastValueFrom, map } from 'rxjs'
 
@@ -31,6 +31,13 @@ export class AlertPriceService {
       active: true,
     })
     return newAlertPrice
+  }
+
+  async list(data: ListAlertPricesDto): Promise<AlertPrice[]> {
+    return this.alertPriceModel.findAll({
+      where: { webhookUrl: data.webhookUrl, active: true },
+      order: ['currency', 'price'],
+    })
   }
 
   @Cron('*/5 * * * * *')

@@ -1,6 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common'
+import { Controller, Post, Body, Get, Query } from '@nestjs/common'
 import { AlertPriceService } from './alert-price.service'
-import { CreateAlertPriceDto } from './dto/create-alert-price.dto'
+import { CreateAlertPriceDto, ListAlertPricesDto } from './dto'
 
 @Controller('alert-price')
 export class AlertPriceController {
@@ -9,5 +9,10 @@ export class AlertPriceController {
   @Post()
   create(@Body() createAlertPriceDto: CreateAlertPriceDto) {
     return this.alertPriceService.create(createAlertPriceDto)
+  }
+
+  @Get()
+  list(@Query() listAlertPricesDto: ListAlertPricesDto) {
+    return this.alertPriceService.list(listAlertPricesDto)
   }
 }
