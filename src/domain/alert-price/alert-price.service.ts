@@ -22,6 +22,19 @@ export class AlertPriceService {
   async create(data: CreateAlertPriceDto): Promise<AlertPrice> {
     const ticker = await this.tickerService.getTicker({ symbol: `BTC${data.currency}` })
     const priceDifference = data.price - parseFloat(ticker.price)
+
+    //check if alert is already created
+    const alert = await this.alertPriceModel.findOne({
+      where: {
+        webhookUrl: data.webhookUrl,
+        currency: data.currency,
+        price: data.price,
+        above: priceDifference > 0,
+      },
+    })
+    if (alert) return alert
+
+    // create new alert
     const newAlertPrice = await this.alertPriceModel.create({
       webhookUrl: data.webhookUrl,
       currency: data.currency,
