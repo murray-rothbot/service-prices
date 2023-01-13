@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common'
 import { TickerService } from './ticker.service'
 import { TickerRequestDto, TickerResponseDto } from './dto'
-import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiQuery } from '@nestjs/swagger'
 import { TickersResponseDto } from './dto/tickers-response.dto'
 
 @Controller('')

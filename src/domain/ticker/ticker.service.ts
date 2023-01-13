@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
+import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
+import { catchError, lastValueFrom, map } from 'rxjs'
 import { TickerRequestDto, TickerResponseDto, TickersResponseDto } from './dto'
 import { ITickerRepository } from './interfaces'
 
@@ -19,8 +21,10 @@ import {
 @Injectable()
 export class TickerService {
   repositories: Array<ITickerRepository>
+  private readonly logger = new Logger(TickerService.name)
 
   constructor(
+    protected readonly httpService: HttpService,
     private readonly binanceRepository?: BinanceRepository,
     private readonly bitfinexRepository?: BitfinexRepository,
     private readonly bitgetRepository?: BitgetRepository,
@@ -74,13 +78,32 @@ export class TickerService {
   @Cron('*/5 * * * * *')
   async updateCache() {
     const symbols = ['btcusd', 'btcbrl']
-
     for (const symbol of symbols) {
-      const promises = this.repositories.map(
-        async (repository: ITickerRepository): Promise<TickerResponseDto> => {
-          return await repository.getTicker({ symbol })
-        },
-      )
+      this.repositories.map(async (repository: ITickerRepository): Promise<TickerResponseDto> => {
+        return await repository.getTicker({ symbol })
+      })
     }
+  }
+
+  // send a request to the endpoint every 5 minutes
+  @Cron('*/5 * * * * *')
+  async handleCron(): Promise<void> {
+    const symbols = ['btcusd', 'btcbrl']
+    const tickers = []
+    for (const symbol of symbols) {
+      tickers.push(await this.getTicker({ symbol }))
+    }
+
+    // send the tickers to the frontend endpoint webhook
+    const webhookUrl = `${process.env.DISCORD_CLIENT_URL}/webhooks/new-price`
+    await lastValueFrom(
+      this.httpService.post(webhookUrl, tickers).pipe(
+        map(() => {}),
+        catchError(async () => {
+          this.logger.error(`ERROR POST ${webhookUrl}`)
+          return null
+        }),
+      ),
+    )
   }
 }
