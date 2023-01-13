@@ -86,7 +86,7 @@ export class TickerService {
   }
 
   // send a request to the endpoint every 5 minutes
-  @Cron('*/5 * * * * *')
+  @Cron('*/10 * * * * *')
   async handleCron(): Promise<void> {
     const symbols = ['btcusd', 'btcbrl']
     const tickers = []
@@ -98,7 +98,9 @@ export class TickerService {
     const webhookUrl = `${process.env.DISCORD_CLIENT_URL}/webhooks/new-price`
     await lastValueFrom(
       this.httpService.post(webhookUrl, tickers).pipe(
-        map(() => {}),
+        map(() => {
+          this.logger.debug(`POST WEBHOOK - ${webhookUrl}`)
+        }),
         catchError(async () => {
           this.logger.error(`ERROR POST ${webhookUrl}`)
           return null
