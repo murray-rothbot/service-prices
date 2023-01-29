@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
+import { ConfigService } from '@nestjs/config'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { TickerRequestDto, TickerResponseDto, TickersResponseDto } from './dto'
 import { ITickerRepository } from './interfaces'
@@ -22,9 +23,11 @@ import {
 export class TickerService {
   repositories: Array<ITickerRepository>
   private readonly logger = new Logger(TickerService.name)
+  serviceMurrayUrl: string = this.cfgService.get<string>('SERVICE_MURRAY_URL')
 
   constructor(
     protected readonly httpService: HttpService,
+    private readonly cfgService: ConfigService,
     private readonly binanceRepository?: BinanceRepository,
     private readonly bitfinexRepository?: BitfinexRepository,
     private readonly bitgetRepository?: BitgetRepository,
@@ -85,7 +88,6 @@ export class TickerService {
     }
   }
 
-  // send a request to the endpoint every 5 minutes
   @Cron('*/10 * * * * *')
   async handleCron(): Promise<void> {
     const symbols = ['btcusd', 'btcbrl']
@@ -94,15 +96,14 @@ export class TickerService {
       tickers.push(await this.getTicker({ symbol }))
     }
 
-    // send the tickers to the frontend endpoint webhook
-    const webhookUrl = `${process.env.DISCORD_CLIENT_URL}/webhooks/new-price`
+    const webhookUrl = `${this.serviceMurrayUrl}/webhooks/new-price`
     await lastValueFrom(
       this.httpService.post(webhookUrl, tickers).pipe(
         map(() => {
-          this.logger.debug(`POST WEBHOOK - ${webhookUrl}`)
+          this.logger.debug(`SEND WEBHOOK - ${webhookUrl}`)
         }),
         catchError(async () => {
-          this.logger.error(`ERROR POST ${webhookUrl}`)
+          this.logger.error(`SEND WEBHOOK - ${webhookUrl}`)
           return null
         }),
       ),
