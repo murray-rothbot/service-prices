@@ -13,13 +13,14 @@ import { KuCoinRepository } from './../repositories'
 import { MercadoBitcoinRepository } from './../repositories'
 import { OKXRepository } from './../repositories'
 import { CacheModule } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 
 describe('TickerService', () => {
   let service: TickerService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule, CacheModule.register()],
+      imports: [HttpModule, CacheModule.register(), ConfigModule],
       providers: [
         TickerService,
         BinanceRepository,
