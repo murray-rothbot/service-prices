@@ -55,8 +55,6 @@ export class AlertPriceService {
 
   @Cron('*/5 * * * * *')
   async checkAlertPrices() {
-    this.logger.debug(`Checking alert prices...`)
-
     // get current prices
     const currentPrices = await Promise.all([
       this.tickerService.getTicker({ symbol: 'btcusd' }),
