@@ -87,26 +87,4 @@ export class TickerService {
       })
     }
   }
-
-  @Cron('*/10 * * * * *')
-  async handleCron(): Promise<void> {
-    const symbols = ['btcusd', 'btcbrl']
-    const tickers = []
-    for (const symbol of symbols) {
-      tickers.push(await this.getTicker({ symbol }))
-    }
-
-    const webhookUrl = `${this.serviceMurrayUrl}/webhooks/new-price`
-    await lastValueFrom(
-      this.httpService.post(webhookUrl, tickers).pipe(
-        map(() => {
-          this.logger.debug(`SEND WEBHOOK - ${webhookUrl}`)
-        }),
-        catchError(async () => {
-          this.logger.error(`SEND WEBHOOK - ${webhookUrl}`)
-          return null
-        }),
-      ),
-    )
-  }
 }
