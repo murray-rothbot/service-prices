@@ -78,7 +78,7 @@ export class TickerService {
     return { tickers }
   }
 
-  @Cron('*/5 * * * * *')
+  @Cron('*/15 * * * * *')
   async updateCache() {
     const symbols = ['btcusd', 'btcbrl']
     for (const symbol of symbols) {
