@@ -53,7 +53,7 @@ export class AlertPriceService {
     })
   }
 
-  @Cron('*/5 * * * * *')
+  @Cron('*/15 * * * * *')
   async checkAlertPrices() {
     // get current prices
     const currentPrices = await Promise.all([

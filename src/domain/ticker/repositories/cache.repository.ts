@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios'
 import { AxiosResponse } from 'axios'
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { TickerRequestDto, TickerResponseDto } from '../dto'
 import { ITickerRepository } from '../interfaces/ticker-repository.interface'
@@ -10,6 +10,7 @@ import { Cache } from 'cache-manager'
 export abstract class CacheRepository implements ITickerRepository {
   source = ''
   baseUrl: string = ''
+  private readonly logger = new Logger(CacheRepository.name)
 
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
@@ -43,14 +44,14 @@ export abstract class CacheRepository implements ITickerRepository {
             return { price, change24h, source: this.source, symbol: ticker }
           }),
           catchError(async () => {
-            console.error('ERROR', this.source, url)
+            this.logger.error(`ERROR - GET TICKER ${this.source} - ${url}`)
             return null
           }),
         ),
       )
 
       // Save to cache
-      await this.cacheManager.set(cache_key, data, 10000)
+      await this.cacheManager.set(cache_key, data, 60000)
 
       return data
     } catch {}
