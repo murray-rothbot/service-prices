@@ -8,7 +8,10 @@ export class GateIORepository extends CacheRepository {
   baseUrl = 'https://api.gateio.ws/api/v4'
 
   getTickerCode(symbol: string): string {
-    return `${symbol.substring(0, 3)}_${symbol.substring(3, 6)}`
+    const tickers = {
+      BTCUSD: 'BTC_USDT',
+    }
+    return tickers[symbol.toUpperCase()] || symbol.toUpperCase()
   }
 
   getTickerURL(ticker: string): string {
