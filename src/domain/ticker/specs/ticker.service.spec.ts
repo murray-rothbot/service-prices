@@ -13,7 +13,7 @@ import { KuCoinRepository } from './../repositories'
 import { MercadoBitcoinRepository } from './../repositories'
 import { OKXRepository } from './../repositories'
 import { CacheModule } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { ConfigModule } from '@nestjs/config'
 
 describe('TickerService', () => {
   let service: TickerService

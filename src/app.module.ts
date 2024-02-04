@@ -1,4 +1,5 @@
 import config from './config/env.config'
+
 import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 import { Module } from '@nestjs/common'
