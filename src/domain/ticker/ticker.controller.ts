@@ -9,7 +9,7 @@ export class TickerController {
   constructor(private readonly tickerService: TickerService) {}
 
   @ApiOperation({
-    summary: 'Get the ticker for a specific pair.',
+    summary: 'Provides data for a specific currency pair.',
   })
   @ApiQuery({
     name: 'symbol',
@@ -34,7 +34,7 @@ export class TickerController {
   }
 
   @ApiOperation({
-    summary: 'Get the tickers for a list of pairs.',
+    summary: 'Returns information on multiple currency pairs.',
   })
   @ApiQuery({
     name: 'symbol',

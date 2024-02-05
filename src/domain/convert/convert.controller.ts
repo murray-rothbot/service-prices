@@ -8,7 +8,7 @@ export class ConvertController {
   constructor(private readonly convertService: ConvertService) {}
 
   @ApiOperation({
-    summary: 'Converts a value from a currency to another.',
+    summary: ' Converts values between different currencies.',
   })
   @ApiQuery({
     name: 'currency',

@@ -22,7 +22,6 @@ import {
 export class TickerService {
   repositories: Array<ITickerRepository>
   private readonly logger = new Logger(TickerService.name)
-  serviceMurrayUrl: string = this.cfgService.get<string>('SERVICE_MURRAY_URL')
 
   constructor(
     protected readonly httpService: HttpService,

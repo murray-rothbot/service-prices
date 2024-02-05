@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @ApiOperation({
-    summary: 'This is the health check endpoint.',
+    summary: 'Checks the health and availability of the API service.',
   })
   @ApiOkResponse({
     description: 'The service is healthy.',
