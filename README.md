@@ -4,6 +4,9 @@
 ## Description
 
 This is a NestJS APIs to provide Prices endpoints.
+You can find the Swagger documentation at:
+
+https://prices.murrayrothbot.com/swagger
 
 ## Installation
 
